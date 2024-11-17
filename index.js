@@ -3,27 +3,37 @@ const app = express()
 app.use(express.json())
 const cors = require('cors')
 app.use(express.static('dist'));
-
 app.use(cors())
 
-let notes = [
-    {
-      id: "1",
-      content: "HTML is easy",
-      important: true
-    },
-    {
-      id: "2",
-      content: "Browser can execute only JavaScript",
-      important: false
-    },
-    {
-      id: "3",
-      content: "GET and POST are the most important methods of HTTP protocol",
-      important: true
-    }
-  ]
 
+//MONGO DATABASE LOGIC 
+  require('dotenv').config(); 
+  const mongoose = require('mongoose')
+  
+  const url = process.env.MONGODB_URI;
+    
+  mongoose.set('strictQuery',false)
+  
+  mongoose
+  .connect(url)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.error('Error connecting to MongoDB:', err.message));
+  
+  const noteSchema = new mongoose.Schema({
+    content: String,
+    important: Boolean,
+  })
+  
+  const Note = mongoose.model('Note', noteSchema)
+//
+
+
+
+
+
+
+
+//ROUTES
 
 
   app.get('/', (request, response) => {
@@ -31,7 +41,9 @@ let notes = [
   })
   
   app.get('/api/notes', (request, response) => {
-    response.json(notes)
+    Note.find({}).then(notes => {
+      response.json(notes)
+    })
   })
 
   app.get('/api/notes/:id', ((request, response) => {
@@ -80,6 +92,8 @@ let notes = [
   })
   
  
+//PORT
+
   const PORT = process.env.PORT || 3001
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
