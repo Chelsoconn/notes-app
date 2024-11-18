@@ -50,8 +50,25 @@ app.use(cors())
     })
   })
 
+  app.put('/api/notes/:id', (request, response, next) => {
+    const body = request.body
+  
+    const note = {
+      content: body.content,
+      important: body.important,
+    }
+  
+    Note.findByIdAndUpdate(request.params.id, note, { new: true })
+      .then(updatedNote => {
+        response.json(updatedNote)
+      })
+      //.catch(error => next(error))
+  })
+
+
+
   app.delete('/api/notes/:id', (request, response) => {
-    Note.findByIdAndRemove(request.params.id).then(note => {
+    Note.findByIdAndDelete(request.params.id).then(note => {
       response.status(204).end()
     })
     .catch(error => {
@@ -59,6 +76,9 @@ app.use(cors())
       response.status(500).json({ error: 'Failed to delete the note' });
     });
   })
+
+
+
 
 //PORT
 
